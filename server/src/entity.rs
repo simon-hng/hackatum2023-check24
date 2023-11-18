@@ -11,7 +11,7 @@ pub enum PostcodeExtensionDistanceGroup {
 }
 
 impl PostcodeExtensionDistanceGroup {
-    pub fn get_extension_in_km(self) -> f32 {
+    pub fn get_extension_in_km(self) -> f64 {
         match self {
             PostcodeExtensionDistanceGroup::GroupA => { 0.0 }
             PostcodeExtensionDistanceGroup::GroupB => { 2.0 }
@@ -23,8 +23,8 @@ impl PostcodeExtensionDistanceGroup {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Postal {
     pub postcode: String,
-    pub lon: f32,
-    pub lat: f32,
+    pub lon: f64,
+    pub lat: f64,
     pub postcode_extension_distance_group: PostcodeExtensionDistanceGroup,
     pub created_at: String,
     pub updated_at: String,
@@ -33,8 +33,8 @@ pub struct Postal {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct QualityFactors {
     pub profile_id: i32,
-    pub profile_picture_score: f32,
-    pub profile_description_score: f32,
+    pub profile_picture_score: f64,
+    pub profile_description_score: f64,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -45,9 +45,9 @@ pub struct ServiceProviderProfiles {
     pub city: String,
     pub street: String,
     pub house_number: String,
-    pub lon: f32,
-    pub lat: f32,
-    pub max_driving_distance: f32,
+    pub lon: f64,
+    pub lat: f64,
+    pub max_driving_distance: f64,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -56,6 +56,6 @@ pub struct Craftsman {
     pub quality_factors: QualityFactors,
     #[serde(flatten)]
     pub service_provider_profile: ServiceProviderProfiles,
-    pub rank: Option<f32>,
-    pub distance: Option<f32>,
+    pub rank: Option<f64>,
+    pub distance: Option<f64>,
 }

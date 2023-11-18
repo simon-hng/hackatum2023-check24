@@ -17,7 +17,7 @@ async fn setup_postal(mut connection_manager: ConnectionManager) {
             .await;
 
         let _ = connection_manager
-            .geo_add::<String, (f32, f32, String), String>(
+            .geo_add::<String, (f64, f64, String), String>(
                 "locations".to_string(),
                 (postal.lon, postal.lat, key),
             )
@@ -60,7 +60,7 @@ async fn setup_service_providers(mut connection_manager: ConnectionManager) {
             .await;
 
         let _ = connection_manager
-            .geo_add::<String, (f32, f32, String), String>(
+            .geo_add::<String, (f64, f64, String), String>(
                 "locations".to_string(),
                 (
                     profile.service_provider_profile.lon,

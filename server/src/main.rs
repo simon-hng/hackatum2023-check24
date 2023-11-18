@@ -52,7 +52,7 @@ async fn get_craftsmen(
         let craftsman_string: String = state.connection_manager.get(id).await.unwrap();
         let mut craftsman: entity::Craftsman = serde_json::from_str(&craftsman_string).unwrap();
 
-        let distance: Option<f32> = state
+        let distance: Option<f64> = state
             .connection_manager
             .geo_dist(
                 "locations",
@@ -88,9 +88,9 @@ async fn get_craftsmen(
 
 #[derive(Deserialize)]
 struct PatchCraftsmanRequest {
-    max_driving_distance: Option<f32>,
-    profile_picture_score: Option<f32>,
-    profile_description_score: Option<f32>,
+    max_driving_distance: Option<f64>,
+    profile_picture_score: Option<f64>,
+    profile_description_score: Option<f64>,
 }
 
 async fn patch_craftsman(
