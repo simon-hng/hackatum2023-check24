@@ -40,13 +40,15 @@ async fn setup_service_providers(mut connection_manager: ConnectionManager) {
         panic!("quality_factors_strings and service_provider_profiles have different lengths");
     }
 
-    let profiles: Vec<entity::Profile> = service_provider_profiles
+    let profiles: Vec<entity::Craftsman> = service_provider_profiles
         .into_iter()
         .zip(quality_factors.into_iter())
         .map(
-            |(service_provider_profile, quality_factors)| entity::Profile {
+            |(service_provider_profile, quality_factors)| entity::Craftsman {
                 quality_factors,
                 service_provider_profile,
+                rank: None,
+                distance: None,
             },
         )
         .collect();
@@ -68,8 +70,6 @@ async fn setup_service_providers(mut connection_manager: ConnectionManager) {
             )
             .await;
     }
-
-    todo!()
 }
 
 pub async fn setup_redis(connection_manager: ConnectionManager) {

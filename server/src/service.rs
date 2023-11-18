@@ -1,6 +1,15 @@
 use crate::entity;
 
-fn calculate_rank(quality_factors: entity::QualityFactors, distance: f32) -> f32 {
+pub fn calculate_rank(
+    quality_factors: &entity::QualityFactors,
+    distance: Option<f32>,
+) -> Option<f32> {
+    if distance.is_none() {
+        return None;
+    };
+
+    let distance = distance.unwrap();
+
     let profile_score = 0.4 * quality_factors.profile_picture_score as f32
         + 0.6 * quality_factors.profile_description_score as f32;
 
@@ -12,5 +21,5 @@ fn calculate_rank(quality_factors: entity::QualityFactors, distance: f32) -> f32
         0.15
     };
 
-    distance_weight * distance_score + (1.0 - distance_weight) * profile_score
+    Some(distance_weight * distance_score + (1.0 - distance_weight) * profile_score)
 }

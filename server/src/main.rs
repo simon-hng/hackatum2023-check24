@@ -7,8 +7,8 @@ use axum::{
     routing::{get, patch},
     Json, Router,
 };
-use redis::aio::ConnectionManager;
-use redis::AsyncCommands;
+use redis::{aio::ConnectionManager, geo::Unit};
+use redis::{geo::RadiusOptions, AsyncCommands};
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -18,7 +18,43 @@ async fn get_craftsmen(
 ) -> String {
     let postalcode = params.get("postalcode").expect("postalcode is required");
 
-    "ok".to_string()
+    let radius = 10.0;
+    let close_craftsmen_ids = state
+        .connection_manager
+        .geo_radius_by_member::<String, String, Vec<String>>(
+            "locations".to_string(),
+            format!("postal:{}", postalcode),
+            radius,
+            Unit::Kilometers,
+            RadiusOptions::default(),
+        )
+        .await
+        .unwrap();
+
+    let mut craftsmen: Vec<entity::Craftsman> = vec![];
+    for id in close_craftsmen_ids.iter() {
+        let craftsman_string: String = state.connection_manager.get(id).await.unwrap();
+        let mut craftsman: entity::Craftsman = serde_json::from_str(&craftsman_string).unwrap();
+        let distance: Option<f32> = state
+            .connection_manager
+            .geo_dist(
+                "locations",
+                format!("postal:{}", postalcode),
+                format!("postal:{}", postalcode),
+                Unit::Kilometers,
+            )
+            .await
+            .ok();
+
+        craftsman.distance = distance;
+        craftsman.rank = service::calculate_rank(&craftsman.quality_factors, distance);
+        craftsmen.push(craftsman);
+    }
+
+    craftsmen.sort_by(|a, b| b.rank.partial_cmp(&a.rank).unwrap());
+    let sorted_and_taken: Vec<entity::Craftsman> = craftsmen.into_iter().take(20).collect();
+
+    serde_json::to_string(&sorted_and_taken).unwrap()
 }
 
 struct _PatchCraftsmanRequest {

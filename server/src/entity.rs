@@ -1,12 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
-pub struct Craftsman {
-    pub id: i32,
-    pub name: String, // firstname + lastname
-    pub ranking_score: f32,
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub enum PostcodeExtensionDistanceGroup {
     #[serde(rename = "group_a")]
@@ -48,9 +41,11 @@ pub struct ServiceProviderProfiles {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Profile {
+pub struct Craftsman {
     #[serde(flatten)]
     pub quality_factors: QualityFactors,
     #[serde(flatten)]
     pub service_provider_profile: ServiceProviderProfiles,
+    pub rank: Option<f32>,
+    pub distance: Option<f32>,
 }
