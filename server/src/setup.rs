@@ -1,6 +1,6 @@
 use std::fs;
 
-use redis::{aio::ConnectionManager, AsyncCommands};
+use redis::{aio::ConnectionManager, AsyncCommands, RedisError};
 
 use crate::entity;
 
@@ -12,8 +12,8 @@ async fn setup_postal(mut connection_manager: ConnectionManager) {
 
     for postal in postals.iter() {
         let key = format!("postal:{}", postal.postcode);
-        let _ = connection_manager
-            .set::<String, String, String>(key.to_owned(), serde_json::to_string(postal).unwrap())
+        let _: Result<String, RedisError> = connection_manager
+            .set(key.to_owned(), serde_json::to_string(postal).unwrap())
             .await;
 
         let _ = connection_manager
@@ -55,8 +55,8 @@ async fn setup_service_providers(mut connection_manager: ConnectionManager) {
 
     for profile in profiles.iter() {
         let key = format!("profile:{}", profile.service_provider_profile.id);
-        let _ = connection_manager
-            .set::<String, String, String>(key.to_owned(), serde_json::to_string(profile).unwrap())
+        let _: Result<String, RedisError> = connection_manager
+            .set(key.to_owned(), serde_json::to_string(profile).unwrap())
             .await;
 
         let _ = connection_manager

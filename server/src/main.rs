@@ -9,7 +9,8 @@ use axum::{
 };
 use redis::{aio::ConnectionManager, geo::Unit};
 use redis::{geo::RadiusOptions, AsyncCommands};
-use serde_json::Value;
+use serde::Deserialize;
+use serde_json::{json, Value};
 use std::collections::HashMap;
 
 async fn get_craftsmen(
@@ -19,9 +20,9 @@ async fn get_craftsmen(
     let postalcode = params.get("postalcode").expect("postalcode is required");
 
     let radius = 10.0;
-    let close_craftsmen_ids = state
+    let close_craftsmen_ids: Vec<String> = state
         .connection_manager
-        .geo_radius_by_member::<String, String, Vec<String>>(
+        .geo_radius_by_member(
             "locations".to_string(),
             format!("postal:{}", postalcode),
             radius,
@@ -57,18 +58,44 @@ async fn get_craftsmen(
     serde_json::to_string(&sorted_and_taken).unwrap()
 }
 
-struct _PatchCraftsmanRequest {
+#[derive(Deserialize)]
+struct PatchCraftsmanRequest {
     max_driving_distance: Option<i32>,
-    profile_picture_score: Option<i32>,
-    profile_description_score: Option<i32>,
+    profile_picture_score: Option<f32>,
+    profile_description_score: Option<f32>,
 }
 
 async fn patch_craftsman(
-    State(state): State<AppState>,
+    State(mut state): State<AppState>,
     Path(user_id): Path<i32>,
-    Json(payload): Json<Value>,
-) {
-    todo!("patching craftsmen {}, {}", user_id, payload);
+    Json(payload): Json<PatchCraftsmanRequest>,
+) -> Json<Value> {
+    let craftsman_string: String = state
+        .connection_manager
+        .get(format!("profile:{}", user_id))
+        .await
+        .unwrap();
+
+    let mut craftsman: entity::Craftsman = serde_json::from_str(&craftsman_string).unwrap();
+
+    if let Some(max_driving_distance) = payload.max_driving_distance {
+        craftsman.service_provider_profile.max_driving_distance = max_driving_distance;
+    }
+    if let Some(profile_picture_score) = payload.profile_picture_score {
+        craftsman.quality_factors.profile_picture_score = profile_picture_score;
+    }
+    if let Some(profile_description_score) = payload.profile_description_score {
+        craftsman.quality_factors.profile_description_score = profile_description_score;
+    }
+
+    Json(json!({
+        "id": user_id,
+        "updated": {
+            "maxDrivingDistance": payload.max_driving_distance,
+            "profilePictureScore": payload.profile_picture_score,
+            "profileDescriptionScore": payload.profile_description_score
+        }
+    }))
 }
 
 #[derive(Clone)]
