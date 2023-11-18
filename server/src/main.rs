@@ -1,4 +1,6 @@
 mod entity;
+mod service;
+mod setup;
 
 use axum::{
     extract::{Path, Query, State},
@@ -6,57 +8,9 @@ use axum::{
     Json, Router,
 };
 use redis::aio::ConnectionManager;
-use redis::{AsyncCommands, Commands};
+use redis::AsyncCommands;
 use serde_json::Value;
 use std::collections::HashMap;
-
-#[derive(Clone)]
-struct AppState {
-    connection_manager: ConnectionManager,
-}
-
-#[tokio::main]
-async fn main() {
-    let client = redis::Client::open("redis://redis.server.orb.local:6379").unwrap();
-    let connection_manager = ConnectionManager::new(client).await.unwrap();
-
-    let state = AppState { connection_manager };
-
-    let app = Router::new()
-        .route("/", get(|| async { "Hello, World!" }))
-        .route("/craftsmen", get(get_craftsmen))
-        .route("/craftsman/:id", patch(patch_craftsman))
-        .with_state(state);
-
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
-}
-
-struct Profile {
-    profile_id: i32,
-    profile_picture_score: f32,
-    profile_description_score: f32,
-}
-
-fn calculate_rank(profile: Profile) -> f32 {
-    let profile_score =
-        0.4 * profile.profile_picture_score + 0.6 * profile.profile_description_score;
-
-    // TODO: Get distance from redis
-    let distance = 0.0;
-
-    let default_distance = 80.0;
-    let distance_score = 1.0 - (distance / default_distance);
-    let distance_weight = if distance > default_distance {
-        0.01
-    } else {
-        0.15
-    };
-
-    distance_weight * distance_score + (1.0 - distance_weight) * profile_score
-}
 
 async fn get_craftsmen(
     State(mut state): State<AppState>,
@@ -98,4 +52,29 @@ async fn patch_craftsman(
     Json(payload): Json<Value>,
 ) {
     todo!("patching craftsmen {}, {}", user_id, payload);
+}
+
+#[derive(Clone)]
+struct AppState {
+    connection_manager: ConnectionManager,
+}
+
+#[tokio::main]
+async fn main() {
+    let client = redis::Client::open("redis://redis.server.orb.local:6379").unwrap();
+    let connection_manager = ConnectionManager::new(client).await.unwrap();
+    setup::setup_redis(connection_manager.to_owned()).await;
+
+    let state = AppState { connection_manager };
+
+    let app = Router::new()
+        .route("/", get(|| async { "Hello, World!" }))
+        .route("/craftsmen", get(get_craftsmen))
+        .route("/craftsman/:id", patch(patch_craftsman))
+        .with_state(state);
+
+    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
 }
