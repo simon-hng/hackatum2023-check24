@@ -34,8 +34,8 @@ export default async function Page({ params }: PageProps) {
                 {craftsman.first_name} {craftsman.last_name}
               </h2>
               <div className="flex gap-4">
-                <p>{craftsman.distance} km entfernt</p>
-                <p>{craftsman.rank} rank</p>
+                <p>{Math.round(craftsman.distance * 10) / 10} km entfernt</p>
+                <p className="text-right">{craftsman.rank} rank</p>
               </div>
             </div>
           </div>
