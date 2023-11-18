@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 pub enum PostcodeExtensionDistanceGroup {
     #[serde(rename = "group_a")]
     GroupA,
@@ -8,6 +8,16 @@ pub enum PostcodeExtensionDistanceGroup {
     GroupB,
     #[serde(rename = "group_c")]
     GroupC,
+}
+
+impl PostcodeExtensionDistanceGroup {
+    pub fn get_extension_in_km(self) -> f32 {
+        match self {
+            PostcodeExtensionDistanceGroup::GroupA => { 0.0 }
+            PostcodeExtensionDistanceGroup::GroupB => { 2.0 }
+            PostcodeExtensionDistanceGroup::GroupC => { 5.0 }
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -37,7 +47,7 @@ pub struct ServiceProviderProfiles {
     pub house_number: String,
     pub lon: f32,
     pub lat: f32,
-    pub max_driving_distance: i32,
+    pub max_driving_distance: f32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

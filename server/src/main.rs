@@ -1,6 +1,7 @@
 mod entity;
 mod service;
 mod setup;
+
 use axum::{
     extract::{Path, Query, State},
     routing::{get, patch},
@@ -33,6 +34,14 @@ async fn get_craftsmen(
         .await
         .unwrap();
 
+    let postal: String = state
+        .connection_manager
+        .get(format!("postal:{}", postalcode))
+        .await
+        .unwrap();
+
+    let postal: entity::Postal = serde_json::from_str(&postal).unwrap();
+
     let close_craftsmen_ids: Vec<String> = close_craftsmen_ids
         .into_iter()
         .filter(|s| s.contains("profile:"))
@@ -49,12 +58,24 @@ async fn get_craftsmen(
                 "locations",
                 format!("postal:{}", postalcode),
                 format!("profile:{}", craftsman.service_provider_profile.id),
-                Unit::Meters,
+                Unit::Kilometers,
             )
             .await
             .ok();
 
         craftsman.distance = distance;
+
+        // Filter out craftsmen who are too far away
+        if let Some(distance) = distance {
+            let post_extension = postal.postcode_extension_distance_group.get_extension_in_km().to_owned();
+            let max_driving_distance = craftsman.service_provider_profile.max_driving_distance +
+                post_extension;
+
+            if distance >= max_driving_distance {
+                continue;
+            }
+        }
+
         craftsman.rank = service::calculate_rank(&craftsman.quality_factors, distance);
         craftsmen.push(craftsman);
     }
@@ -67,7 +88,7 @@ async fn get_craftsmen(
 
 #[derive(Deserialize)]
 struct PatchCraftsmanRequest {
-    max_driving_distance: Option<i32>,
+    max_driving_distance: Option<f32>,
     profile_picture_score: Option<f32>,
     profile_description_score: Option<f32>,
 }
