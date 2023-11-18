@@ -1,17 +1,18 @@
 mod entity;
 mod service;
 mod setup;
-
 use axum::{
     extract::{Path, Query, State},
     routing::{get, patch},
     Json, Router,
 };
+use dotenvy::dotenv;
 use redis::{aio::ConnectionManager, geo::Unit};
 use redis::{geo::RadiusOptions, AsyncCommands};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::collections::HashMap;
+use std::env;
 
 async fn get_craftsmen(
     State(mut state): State<AppState>,
@@ -111,7 +112,10 @@ struct AppState {
 
 #[tokio::main]
 async fn main() {
-    let client = redis::Client::open("redis://redis.server.orb.local:6379").unwrap();
+    dotenv().ok();
+
+    let redis_url = env::var("REDIS_URL").expect("REDIS_URL must be set");
+    let client = redis::Client::open(redis_url).unwrap();
     let connection_manager = ConnectionManager::new(client).await.unwrap();
     setup::setup_redis(connection_manager.to_owned()).await;
 

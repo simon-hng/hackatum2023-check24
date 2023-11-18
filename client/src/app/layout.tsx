@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${inter.variable}`}>
-        <nav className="navbar mx-16 bg-base-100">
+        <nav className="navbar bg-base-100 px-16">
           <Link href="/" className="btn btn-ghost text-xl">
             Back
           </Link>
