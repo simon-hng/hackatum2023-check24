@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { api } from "~/lib/api";
 import { Craftsman } from "~/lib/types/craftsman";
+import { CraftsmanMap } from "./_components/craftsmanMap";
 
 interface PageProps {
   params: {

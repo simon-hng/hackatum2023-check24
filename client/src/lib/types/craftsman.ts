@@ -7,4 +7,6 @@ export interface Craftsman {
   house_number: string;
   distance: number;
   rank: number;
+  lon: number;
+  lat: number;
 }
