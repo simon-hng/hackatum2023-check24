@@ -1,34 +1,58 @@
+use log::warn;
 use redis::geo::{RadiusOptions, Unit};
 use redis::AsyncCommands;
 use crate::{AppState, entity};
-use crate::entity::Craftsman;
+use crate::entity::{PostcodeExtensionDistanceGroup};
 
-pub async fn get_craftsmen_by_postalcode(state: &mut AppState, postalcode: &String) -> Vec<Craftsman> {
-    let radius = 105.0;
-    let close_craftsmen_ids: Vec<String> = state
-        .connection_manager
-        .geo_radius_by_member(
-            "locations".to_string(),
-            format!("postal:{}", postalcode),
-            radius,
-            Unit::Kilometers,
-            RadiusOptions::default(),
-        )
-        .await
-        .unwrap();
-
+async fn get_postal(state: &mut AppState, postalcode: &String) -> entity::Postal {
     let postal: String = state
         .connection_manager
         .get(format!("postal:{}", postalcode))
         .await
         .unwrap();
-
     let postal: entity::Postal = serde_json::from_str(&postal).unwrap();
+    postal
+}
 
-    let close_craftsmen_ids: Vec<String> = close_craftsmen_ids
+async fn get_required_craftsmen(state: &mut AppState, postalcode: &String, required_craftsmen: i32, extension_group: PostcodeExtensionDistanceGroup) -> Vec<String> {
+    let mut radius = match extension_group {
+        PostcodeExtensionDistanceGroup::GroupA => { 10.0 }
+        PostcodeExtensionDistanceGroup::GroupB => { 20.0 }
+        PostcodeExtensionDistanceGroup::GroupC => { 40.0 }
+    };
+
+    let mut close_craftsmen_ids: Vec<String> = vec![];
+
+    while close_craftsmen_ids.len() < required_craftsmen as usize {
+        close_craftsmen_ids = state
+            .connection_manager
+            .geo_radius_by_member(
+                "locations".to_string(),
+                format!("postal:{}", postalcode),
+                radius,
+                Unit::Kilometers,
+                RadiusOptions::default(),
+            )
+            .await
+            .unwrap();
+
+        radius *= 2.0;
+    }
+
+    // postals are in the same bucket to caculate the distance with redis
+    close_craftsmen_ids
         .into_iter()
         .filter(|s| s.contains("profile:"))
-        .collect();
+        .collect()
+}
+
+// Gets the craftsmen by postalcode, sorted by rank.
+// Always returns 20 craftsmen.
+pub async fn get_craftsmen_by_postalcode(state: &mut AppState, postalcode: &String, page: i32) -> Vec<entity::Craftsman> {
+    let required_craftsmen = page * 20;
+
+    let postal = get_postal(state, postalcode).await;
+    let close_craftsmen_ids = get_required_craftsmen(state, postalcode, required_craftsmen, postal.postcode_extension_distance_group).await;
 
     let mut craftsmen: Vec<entity::Craftsman> = vec![];
     for id in close_craftsmen_ids.iter() {
@@ -64,7 +88,7 @@ pub async fn get_craftsmen_by_postalcode(state: &mut AppState, postalcode: &Stri
     }
 
     craftsmen.sort_by(|a, b| b.rank.partial_cmp(&a.rank).unwrap());
-    craftsmen
+    craftsmen.iter().skip((page - 1) as usize * 20).take(20).cloned().collect()
 }
 
 pub fn calculate_rank(

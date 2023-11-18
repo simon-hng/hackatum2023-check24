@@ -20,8 +20,9 @@ async fn get_craftsmen(
     Query(params): Query<HashMap<String, String>>,
 ) -> String {
     let postalcode = params.get("postalcode").expect("postalcode is required");
+    let page = params.get("page").map(|s| s.parse::<i32>().unwrap()).unwrap_or(1);
 
-    let craftsmen = service::get_craftsmen_by_postalcode(&mut state, postalcode).await;
+    let craftsmen = service::get_craftsmen_by_postalcode(&mut state, postalcode, page).await;
     let sorted_and_taken: Vec<entity::Craftsman> = craftsmen.into_iter().take(20).collect();
 
     serde_json::to_string(&sorted_and_taken).unwrap()

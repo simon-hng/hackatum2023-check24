@@ -30,14 +30,14 @@ pub struct Postal {
     pub updated_at: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct QualityFactors {
     pub profile_id: i32,
     pub profile_picture_score: f64,
     pub profile_description_score: f64,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ServiceProviderProfiles {
     pub id: i32,
     pub first_name: String,
@@ -50,7 +50,7 @@ pub struct ServiceProviderProfiles {
     pub max_driving_distance: f64,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Craftsman {
     #[serde(flatten)]
     pub quality_factors: QualityFactors,
