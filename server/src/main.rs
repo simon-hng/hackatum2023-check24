@@ -32,10 +32,16 @@ async fn get_craftsmen(
         .await
         .unwrap();
 
+    let close_craftsmen_ids: Vec<String> = close_craftsmen_ids
+        .into_iter()
+        .filter(|s| s.contains("profile:"))
+        .collect();
+
     let mut craftsmen: Vec<entity::Craftsman> = vec![];
     for id in close_craftsmen_ids.iter() {
         let craftsman_string: String = state.connection_manager.get(id).await.unwrap();
         let mut craftsman: entity::Craftsman = serde_json::from_str(&craftsman_string).unwrap();
+
         let distance: Option<f32> = state
             .connection_manager
             .geo_dist(
