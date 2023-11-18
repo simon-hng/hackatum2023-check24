@@ -11,11 +11,15 @@ async fn setup_postal(mut connection_manager: ConnectionManager) {
     .unwrap();
 
     for postal in postals.iter() {
-        let postalcode = postal.postcode.to_owned();
+        let key = format!("postal:{}", postal.postcode);
         let _ = connection_manager
-            .set::<String, String, String>(
-                format!("postal:{}", postalcode),
-                serde_json::to_string(postal).unwrap(),
+            .geo_add::<String, (f32, f32, String), String>(
+                key,
+                (
+                    postal.lon,
+                    postal.lat,
+                    serde_json::to_string(postal).unwrap(),
+                ),
             )
             .await;
     }
@@ -48,11 +52,15 @@ async fn setup_service_providers(mut connection_manager: ConnectionManager) {
         .collect();
 
     for profile in profiles.iter() {
-        let profile_id = profile.service_provider_profile.id;
+        let key = format!("profile:{}", profile.service_provider_profile.id);
         let _ = connection_manager
-            .set::<String, String, String>(
-                format!("profile:{}", profile_id),
-                serde_json::to_string(profile).unwrap(),
+            .geo_add::<String, (f32, f32, String), String>(
+                key,
+                (
+                    profile.service_provider_profile.lon,
+                    profile.service_provider_profile.lat,
+                    serde_json::to_string(profile).unwrap(),
+                ),
             )
             .await;
     }
