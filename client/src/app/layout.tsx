@@ -2,6 +2,8 @@ import "~/styles/globals.css";
 
 import { Inter } from "next/font/google";
 import Link from "next/link";
+import { Logo } from "./_components/logo";
+import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,12 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="check24">
       <body className={`font-sans ${inter.variable}`}>
-        <nav className="navbar bg-base-100 px-16">
+        <nav className="navbar flex justify-between bg-primary px-16 text-white">
           <Link href="/" className="btn btn-ghost text-xl">
-            Back
+            <ArrowLeftIcon className="mr-2 h-6 w-6" />
           </Link>
+          <Logo />
         </nav>
         {children}
       </body>

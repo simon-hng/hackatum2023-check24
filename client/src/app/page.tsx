@@ -16,7 +16,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-md py-16">
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-2">
-            <h1 className="text-large">
+            <h1 className="text-large text-info">
               In welcher plz suchen Sie einen Handwerker?
             </h1>
             <input
@@ -26,7 +26,10 @@ export default function HomePage() {
               className="input input-bordered w-full"
             />
           </div>
-          <button type="submit" className="btn">
+          <button
+            type="submit"
+            className="btn bg-neutral text-white hover:bg-secondary"
+          >
             Weiter
           </button>
         </form>

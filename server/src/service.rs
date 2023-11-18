@@ -4,7 +4,7 @@ use crate::{AppState, entity};
 use crate::entity::Craftsman;
 
 pub async fn get_craftsmen_by_postalcode(state: &mut AppState, postalcode: &String) -> Vec<Craftsman> {
-    let radius = 10.0;
+    let radius = 105.0;
     let close_craftsmen_ids: Vec<String> = state
         .connection_manager
         .geo_radius_by_member(
@@ -51,7 +51,7 @@ pub async fn get_craftsmen_by_postalcode(state: &mut AppState, postalcode: &Stri
         // Filter out craftsmen who are too far away
         if let Some(distance) = distance {
             let post_extension = postal.postcode_extension_distance_group.get_extension_in_km().to_owned();
-            let max_driving_distance = craftsman.service_provider_profile.max_driving_distance +
+            let max_driving_distance = (craftsman.service_provider_profile.max_driving_distance / 1000.0) +
                 post_extension;
 
             if distance >= max_driving_distance {
