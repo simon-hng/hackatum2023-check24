@@ -73,6 +73,11 @@ async fn setup_service_providers(mut connection_manager: ConnectionManager) {
 }
 
 pub async fn setup_redis(connection_manager: ConnectionManager) {
+    log::info!("Setting up redis db");
     setup_postal(connection_manager.to_owned()).await;
+
+    log::info!("Added postals to redis");
     setup_service_providers(connection_manager.to_owned()).await;
+
+    log::info!("Added service_providers to redis");
 }

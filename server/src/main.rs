@@ -48,8 +48,8 @@ async fn get_craftsmen(
             .geo_dist(
                 "locations",
                 format!("postal:{}", postalcode),
-                format!("postal:{}", postalcode),
-                Unit::Kilometers,
+                format!("profile:{}", craftsman.service_provider_profile.id),
+                Unit::Meters,
             )
             .await
             .ok();
@@ -112,8 +112,11 @@ struct AppState {
 
 #[tokio::main]
 async fn main() {
+    env::set_var("RUST_LOG", "debug");
+    tracing_subscriber::fmt::init();
     dotenv().ok();
 
+    log::info!("Starting up");
     let redis_url = env::var("REDIS_URL").expect("REDIS_URL must be set");
     let client = redis::Client::open(redis_url).unwrap();
     let connection_manager = ConnectionManager::new(client).await.unwrap();
