@@ -9,4 +9,6 @@ export interface Craftsman {
   rank: number;
   lon: number;
   lat: number;
+  profile_picture_score: number;
+  profile_description_score: number;
 }

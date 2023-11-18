@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { api } from "~/lib/api";
 import { Craftsman } from "~/lib/types/craftsman";
-import { CraftsmanMap } from "./_components/craftsmanMap";
 
 interface PageProps {
   params: {
@@ -37,6 +36,12 @@ export default async function Page({ params }: PageProps) {
               <div className="flex gap-4">
                 <p>{Math.round(craftsman.distance * 10) / 10} km entfernt</p>
                 <p className="text-right">{craftsman.rank} rank</p>
+              </div>
+              <div className="flex gap-4">
+                <p>{craftsman.profile_picture_score} picture score</p>
+                <p className="text-right">
+                  {craftsman.profile_description_score} description
+                </p>
               </div>
             </div>
           </div>
