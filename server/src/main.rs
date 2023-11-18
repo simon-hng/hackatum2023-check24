@@ -14,6 +14,7 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::env;
+use tower_http::cors::{Any, CorsLayer};
 
 async fn get_craftsmen(
     State(mut state): State<AppState>,
@@ -87,11 +88,15 @@ async fn main() {
 
     let state = AppState { connection_manager };
 
+    let cors = CorsLayer::new()
+        .allow_origin(Any);
+
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .route("/craftsmen", get(get_craftsmen))
         .route("/craftsman/:id", patch(patch_craftsman))
-        .with_state(state);
+        .with_state(state)
+        .layer(cors);
 
     axum::Server::bind(&"0.0.0.0:8080".parse().unwrap())
         .serve(app.into_make_service())
