@@ -18,25 +18,6 @@ async fn get_craftsmen(
 ) -> String {
     let postalcode = params.get("postalcode").expect("postalcode is required");
 
-    let postal: HashMap<String, String> = state
-        .connection_manager
-        .hgetall(format!("postal:{}", postalcode))
-        .await
-        .unwrap();
-
-    println!(
-        "{:?}, {:?}",
-        postal.get("lat").unwrap(),
-        postal.get("lon").unwrap()
-    );
-
-    todo!(
-        "Get craftsmen in the area of {}, {}",
-        postal.get("lat").unwrap(),
-        postal.get("lon").unwrap()
-    );
-    // todo!("Rank craftsmen by distance, profile picture score, profile description score, and review score");
-
     "ok".to_string()
 }
 
