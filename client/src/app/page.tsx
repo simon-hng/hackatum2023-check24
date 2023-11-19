@@ -17,12 +17,12 @@ export default function HomePage() {
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-2">
             <h1 className="text-large text-info">
-              In welcher plz suchen Sie einen Handwerker?
+              In welcher Postleitzahl suchen Sie einen Handwerker?
             </h1>
             <input
               onChange={(e) => setPostalcode(e.target.value)}
               type="text"
-              placeholder="plz"
+              placeholder="Postleitzahl"
               className="input input-bordered w-full"
             />
           </div>
