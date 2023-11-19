@@ -14,7 +14,7 @@ COPY --from=builder /code/target/release/server server
 COPY --from=builder /code/data data
 
 # Expose the port that your Rust server will be running on
-EXPOSE 8080
+EXPOSE 3000
 
 # Command to run the application
 CMD ["/app/server"]

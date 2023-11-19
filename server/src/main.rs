@@ -4,8 +4,8 @@ mod setup;
 
 use axum::{
     extract::{Path, Query, State},
-    Json,
-    Router, routing::{get, patch},
+    routing::{get, patch},
+    Json, Router,
 };
 use dotenvy::dotenv;
 use redis::aio::ConnectionManager;
@@ -21,7 +21,10 @@ async fn get_craftsmen(
     Query(params): Query<HashMap<String, String>>,
 ) -> String {
     let postalcode = params.get("postalcode").expect("postalcode is required");
-    let page = params.get("page").map(|s| s.parse::<i32>().unwrap()).unwrap_or(1);
+    let page = params
+        .get("page")
+        .map(|s| s.parse::<i32>().unwrap())
+        .unwrap_or(1);
 
     let craftsmen = service::get_craftsmen_by_postalcode(&mut state, postalcode, page).await;
     let sorted_and_taken: Vec<entity::Craftsman> = craftsmen.into_iter().take(20).collect();
@@ -90,8 +93,7 @@ async fn main() {
 
     let state = AppState { connection_manager };
 
-    let cors = CorsLayer::new()
-        .allow_origin(Any);
+    let cors = CorsLayer::new().allow_origin(Any);
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
@@ -100,7 +102,7 @@ async fn main() {
         .with_state(state)
         .layer(cors);
 
-    axum::Server::bind(&"0.0.0.0:8080".parse().unwrap())
+    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();
