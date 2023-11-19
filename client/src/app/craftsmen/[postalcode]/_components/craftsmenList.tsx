@@ -32,7 +32,7 @@ export const CraftsmenList = (props: Props) => {
   return (
     <>
       <div className="grid gap-3 px-4 sm:px-16 md:grid-cols-2">
-        {craftsmen.map((craftsman) => (
+        {craftsmen.map((craftsman, i) => (
           <div
             key={craftsman.id}
             className="card flex w-full flex-row items-center bg-base-100 px-8 py-4 shadow-xl"
@@ -40,9 +40,7 @@ export const CraftsmenList = (props: Props) => {
             <figure>
               <div className="avatar">
                 <div className="w-24 rounded-full">
-                  <img
-                    src={`https://i.pravatar.cc/150?img=${Math.random() * 50}`}
-                  />
+                  <img alt="handwerker" src={`/handwerker/${i % 12}.jpeg`} />
                 </div>
               </div>
             </figure>
