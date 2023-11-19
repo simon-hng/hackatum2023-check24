@@ -59,6 +59,8 @@ async fn patch_craftsman(
         craftsman.quality_factors.profile_description_score = profile_description_score;
     }
 
+    service::upsert_profile(&mut state.connection_manager, &craftsman).await;
+
     Json(json!({
         "id": user_id,
         "updated": {

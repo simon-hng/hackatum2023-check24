@@ -1,8 +1,8 @@
-use log::warn;
 use redis::geo::{RadiusOptions, Unit};
-use redis::AsyncCommands;
+use redis::{AsyncCommands, RedisError};
+use redis::aio::ConnectionManager;
 use crate::{AppState, entity};
-use crate::entity::{PostcodeExtensionDistanceGroup};
+use crate::entity::{Craftsman, PostcodeExtensionDistanceGroup};
 
 async fn get_postal(state: &mut AppState, postalcode: &String) -> entity::Postal {
     let postal: String = state
@@ -184,4 +184,22 @@ mod tests {
         ).unwrap();
         assert_eq!(actual, 2.96);
     }
+}
+
+pub async fn upsert_profile(connection_manager: &mut ConnectionManager, profile: &Craftsman) {
+    let key = format!("profile:{}", profile.service_provider_profile.id);
+    let _: Result<String, RedisError> = connection_manager
+        .set(key.to_owned(), serde_json::to_string(profile).unwrap())
+        .await;
+
+    let _ = connection_manager
+        .geo_add::<String, (f64, f64, String), String>(
+            "locations".to_string(),
+            (
+                profile.service_provider_profile.lon,
+                profile.service_provider_profile.lat,
+                key,
+            ),
+        )
+        .await;
 }
