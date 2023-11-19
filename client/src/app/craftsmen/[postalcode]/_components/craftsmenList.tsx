@@ -10,7 +10,8 @@ interface Props {
 }
 
 export const CraftsmenList = (props: Props) => {
-  let page = 1;
+  // We're starting with the second page since the first is passed
+  const [page, setPage] = useState(2);
   const [craftsmen, setCraftsmen] = useState(props.craftsmen);
 
   const loadmore = async () => {
@@ -25,7 +26,7 @@ export const CraftsmenList = (props: Props) => {
 
     setCraftsmen([...craftsmen, ...newCraftsmen]);
 
-    page++;
+    setPage(page + 1);
   };
 
   return (
