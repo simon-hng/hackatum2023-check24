@@ -9,15 +9,14 @@ interface PageProps {
 }
 
 export default async function Page({ params }: PageProps) {
-  let page = 1;
-  const initialCraftsmen: Craftsman[] = await api
+  const initialCraftsmen = await api
     .get("/craftsmen", {
       params: {
         postalcode: params.postalcode,
-        page,
+        page: 1,
       },
     })
-    .then((res) => res.data);
+    .then((res) => res.data as Craftsman[]);
 
   return (
     <section>

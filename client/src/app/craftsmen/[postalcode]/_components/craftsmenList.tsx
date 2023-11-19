@@ -15,14 +15,14 @@ export const CraftsmenList = (props: Props) => {
   const [craftsmen, setCraftsmen] = useState(props.craftsmen);
 
   const loadmore = async () => {
-    const newCraftsmen: Craftsman[] = await api
+    const newCraftsmen = await api
       .get("/craftsmen", {
         params: {
           postalcode: props.postalcode,
           page,
         },
       })
-      .then((res: any) => res.data);
+      .then((res) => res.data as Craftsman[]);
 
     setCraftsmen([...craftsmen, ...newCraftsmen]);
 

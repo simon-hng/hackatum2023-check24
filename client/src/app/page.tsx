@@ -6,7 +6,7 @@ export default function HomePage() {
   const [postalcode, setPostalcode] = useState("");
   const router = useRouter();
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     router.push(`/craftsmen/${postalcode}`);
   };
