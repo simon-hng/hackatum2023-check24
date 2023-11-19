@@ -16,3 +16,12 @@ services:
       REDIS_URL: "redis://redis:6379"
     depends_on:
       - redis
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      PUBLIC_API_BASE_URL: "http://server:8080"

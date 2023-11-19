@@ -11,6 +11,7 @@ WORKDIR /app
 
 # Copy only the necessary files from the builder image for the main project
 COPY --from=builder /code/target/release/server server
+COPY --from=builder /code/data data
 
 # Expose the port that your Rust server will be running on
 EXPOSE 8080
