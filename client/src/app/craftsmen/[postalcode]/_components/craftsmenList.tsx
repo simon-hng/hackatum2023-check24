@@ -1,7 +1,7 @@
 "use client";
 import { MapPinIcon } from "@heroicons/react/20/solid";
 import { useState } from "react";
-import { api } from "~/lib/api";
+import { proxyApi } from "~/lib/api";
 import { Craftsman } from "~/lib/types/craftsman";
 
 interface Props {
@@ -15,8 +15,8 @@ export const CraftsmenList = (props: Props) => {
   const [craftsmen, setCraftsmen] = useState(props.craftsmen);
 
   const loadmore = async () => {
-    const newCraftsmen = await api
-      .get("/craftsmen", {
+    const newCraftsmen = await proxyApi
+      .get("api/craftsmen", {
         params: {
           postalcode: props.postalcode,
           page,

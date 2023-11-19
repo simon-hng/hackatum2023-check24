@@ -1,6 +1,10 @@
 import axios from "axios";
-import process from "process";
+import { env } from "~/env.mjs";
 
 export const api = axios.create({
-  baseURL: process.env.PUBLIC_API_BASE_URL,
+  baseURL: env.NEXT_PUBLIC_API_BASE_URL,
+});
+
+export const proxyApi = axios.create({
+  baseURL: '/'
 });
